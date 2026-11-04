@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/table_screen.dart';
+import 'package:pmu4_p1/screens/home_screen.dart';
 
 void main() {
   runApp(const QuakesApp());
@@ -11,12 +11,12 @@ class QuakesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Potresei',
+      title: 'Potresi',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
       ),
-      home: const TableScreen(),
+      home: const HomeScreen(),
     );
   }
 }

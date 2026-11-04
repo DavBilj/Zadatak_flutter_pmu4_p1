@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'list_screen.dart';
+import 'map_screen.dart';
+import 'table_screen.dart';
+
 
 
 class HomeScreen extends StatefulWidget {
@@ -10,11 +14,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _index = 0;
+
+  static const _screens = <Widget>[ListScreen(), TableScreen(), MapScreen()];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tabllica'),),
-      body: const Center(child: Text('Ovdje će biti tablica potresa.')),
+      body: _screens[_index],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _index,
+        onDestinationSelected: (index) => setState(() {
+          _index = index;
+        }),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.list), label: 'Popis'),
+          NavigationDestination(icon: Icon(Icons.table_chart), label: 'Tablica'),
+          NavigationDestination(icon: Icon(Icons.public), label: 'Karta'),
+        ],
+        ),
     );
+
   }
 }
