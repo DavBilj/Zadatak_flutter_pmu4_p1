@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import '../models/quake.dart';
-import 'magnitude_badge.dart';
+import 'package:pmu4_p1/models/position.dart';
 
-class QuakeTile extends StatelessWidget {
-  final Quake quake;
+class PositionTile extends StatelessWidget {
+  final Position position;
   final bool pinned;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
   final VoidCallback onDismissed;
 
-  const QuakeTile({
+  const PositionTile({
     super.key,
-    required this.quake,
+    required this.position,
     required this.pinned,
     required this.onTap,
     required this.onLongPress,
@@ -22,7 +20,7 @@ class QuakeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey(quake.id),
+      key: ValueKey(position.driverNumber),
       direction: DismissDirection.endToStart,
       background: Container(
         color: Colors.red,
@@ -32,12 +30,8 @@ class QuakeTile extends StatelessWidget {
       ),
       onDismissed: (direction) => onDismissed(),
       child: ListTile(
-        leading: Hero(
-          tag: 'magnitude-${quake.id}',
-          child: MagnitudeBadge(magnitude: quake.magnitude),
-        ),
-        title:Text(quake.place),
-        subtitle: Text(quake.timeLabel),
+        title:Text(position.driverNumber.toString()),
+        subtitle: Text('Gap to leader: ${position.gap}'),
         trailing: AnimatedScale
         (scale: pinned ? 1: 0, 
         duration: const Duration(milliseconds: 250),
@@ -50,3 +44,4 @@ class QuakeTile extends StatelessWidget {
     );
   }
 }
+

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../models/quake.dart';
-import '../services/quake_service.dart';
-import '../widgets/quake_tile.dart';
+import '../models/position.dart';
+import '../services/position_service.dart';
 import '../screens/detail_screen.dart';
+import '../widgets/position_tile.dart';
 
 class ListScreen extends StatefulWidget {
   const ListScreen({super.key});
@@ -13,25 +13,25 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-  final _service = const QuakeService();
-  late Future<List<Quake>> _quakes;
+  final _service = const PositionService();
+  late Future<List<Position>> _positions;
   final _removed = <String>{}; // Set<String>
   final _pinned = <String>{}; // Set<String>
 
   @override
   void initState() {
     super.initState();
-    _quakes = _service.fetchQuakes();
+    _positions = _service.fetchPositions();
   }
 
   Future<void> _reload() {
     setState(() {
-      _quakes = _service.fetchQuakes();
+      _positions = _service.fetchPositions();
     });
-    return _quakes;
+    return _positions;
   }
 
-  void _openDetail(Quake quake) {
+  void _openDetail(Position position) {
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -39,30 +39,32 @@ class _ListScreenState extends State<ListScreen> {
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(opacity: animation, child: child),
         pageBuilder: (context, animation, secondaryAnimation) =>
-            DetailScreen(quake: quake),
+            DetailScreen(position: position),
       ),
     );
   }
 
-  void _togglePin(Quake quake) {
+  void _togglePin(Position position) {
     setState(() {
-      if (!_pinned.remove(quake.id)) _pinned.add(quake.id);
+      if (!_pinned.remove(position.driverNumber.toString())) {
+        _pinned.add(position.driverNumber.toString());
+      }
     });
   }
 
-  void _remove(Quake quake) {
+  void _remove(Position position) {
     setState(() {
-      _removed.add(quake.id);
+      _removed.add(position.driverNumber.toString());
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Uklonjeno: ${quake.place}'),
+        content: Text('Uklonjeno: ${position.driverNumber}'),
         action: SnackBarAction(
           label: 'Poništi',
           onPressed: () {
             if (!mounted) return;
             setState(() {
-              _removed.remove(quake.id);
+              _removed.remove(position.driverNumber.toString());
             });
           },
         ),
@@ -70,11 +72,11 @@ class _ListScreenState extends State<ListScreen> {
     );
   }
 
-  Widget _buildList(List<Quake> quakes) {
-    final visible = quakes.where((q) => !_removed.contains(q.id)).toList();
+  Widget _buildList(List<Position> positions) {
+    final visible = positions.where((p) => !_removed.contains(p.driverNumber.toString())).toList();
 
     if (visible.isEmpty) {
-      return const Center(child: Text('Nema potresa za prikaz'));
+      return const Center(child: Text('Nema sesije za prikaz'));
     }
 
     return RefreshIndicator(
@@ -83,13 +85,13 @@ class _ListScreenState extends State<ListScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         itemCount: visible.length,
         itemBuilder: (context, index) {
-          final quake = visible[index];
-          return QuakeTile(
-            quake: quake,
-            pinned: _pinned.contains(quake.id),
-            onTap: () => _openDetail(quake),
-            onLongPress: () => _togglePin(quake),
-            onDismissed: () => _remove(quake),
+          final position = visible[index];
+          return PositionTile(
+            position: position,
+            pinned: _pinned.contains(position.driverNumber.toString()),
+            onTap: () => _openDetail(position),
+            onLongPress: () => _togglePin(position),
+            onDismissed: () => _remove(position),
           );
         },
       ),
@@ -99,9 +101,9 @@ class _ListScreenState extends State<ListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Potresi - 24 h')),
-      body: FutureBuilder<List<Quake>>(
-        future: _quakes,
+      appBar: AppBar(title: const Text('Utrka')),
+      body: FutureBuilder<List<Position>>(
+        future: _positions,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting &&
               !snapshot.hasData) {
@@ -115,7 +117,7 @@ class _ListScreenState extends State<ListScreen> {
                 children: [
                   const Icon(Icons.wifi_off, size: 48),
                   const SizedBox(height: 12),
-                  const Text('Provjeri internetsku vezu i pokušaj ponovno'),
+                  Text('${snapshot.error}'),
                   const SizedBox(height: 12),
                   FilledButton(
                     onPressed: _reload,
